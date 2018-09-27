@@ -1,0 +1,596 @@
+<template>
+  <div class="content">
+    <!-- <div class="title">
+      <h3>瑜伽基础课程（2）</h3>
+      <p><img src="../image/wrong.png" alt=""></p>
+    </div> -->
+    <div class="lesson">
+      <!-- 这个是循环调用的 <div class="box1" v-for="item in pptlist" :key="item.id"> -->
+      <div class="box1"  >
+         <!-- Swiper -->
+        <div class="swiper-container" >
+          <div class="swiper-wrapper" >
+            <!-- <div class="swiper-slide"><img class="imgswid" src="../image/girl.png"></div>
+            <div class="swiper-slide"><img class="imgswid" src="../image/girl.png"></div>
+            <div class="swiper-slide"><img class="imgswid" src="../image/girl.png"></div> -->
+            <div  v-if="show"  @click="allsba()">
+              <img class="imgswid" :src="course_cover" preview preview-text="">
+            </div>
+            <div @click="allsba()" class="swiper-slide" v-for="item in pptlist" :key="item.id">
+              <img class="imgswid" :src="item.ppt_img" preview preview-text="">
+            </div>
+            <!-- <div id="carousel1" class="carousel-content">
+              <h3 class="demo-title">Demo1</h3>
+              <ul class="carousel" @click="allsba()" v-for="item in pptlist" :key="item.id">
+                <li><imgclass="imgswid" :src="item.ppt_img" preview preview-text=""></li>
+              </ul>
+              <div class="carousel-prev"><img src="./images/icons/left_btn1.png"></div>
+              <div class="carousel-next"><img src="./images/icons/right_btn1.png"></div>
+            </div> -->
+      <!--       <carousel :indicators="true" :auto="1000">
+              <div  @click="allsba()" v-for="item in pptlist" :key="item.id">
+              <img :src="item.ppt_img" preview preview-text=""></div>
+            </carousel> -->
+          </div>
+        </div>
+      </div>
+       <div class="box2">
+         <div class="imgbox">
+            <img src="../image/icon_jdt_paowan.png" alt="">
+            <div class="times2" id="lefts">
+            <img src="../image/icon_jdt_zhishi.png" alt="">
+            </div>
+         </div>
+         <div class="box2_1">
+           <!-- <img src="../image/icon_left.png" alt=""> -->
+           <div class="changeImgs" @click="changes()">
+             <!-- <img src="../image/icon_stop.png" class="stops" alt=""> -->
+             <img :src="imgs" class="stops" alt="">
+           </div>
+           <div style="display:none">
+             <audio :src="this.audio" :controls="playStatus" id="myvideo" >
+              您的浏览器不支持 video 标签。
+            </audio>
+           </div>
+            
+           <!-- <img src="../image/icon_right.png" alt=""> -->
+         </div>
+          <div class="times"></div>
+
+          <div class="times">
+            <span class="nums">{{this.starts}}</span>
+            <!-- <span>4.8</span> -->
+            <span>{{this.fenend}}</span>
+            <!-- <span>{{this_length}}</span> -->
+          </div>
+       </div>
+
+
+    </div>
+    <!-- <div class="teset">
+       <img src="../image/girl.png" preview preview-text="">
+    </div> -->
+    <div class="favourable">
+      <p class="fir">简介</p>
+      <p>{{course_introduction}}</p>
+    </div>
+    <div class="pic">
+      <div class="close" @click="closed()">关闭</div>
+    </div>
+
+        <div id="pro"></div>
+
+
+        <div class="fixed" v-if="isFixed">
+          <img src="../../assets/logo.png">
+          更全面的功能，更流畅的体验
+          <!-- 苹果 -->
+          <a v-if="downIos"  href="https://itunes.apple.com/cn/app/%E5%B0%8F%E8%A1%8C%E6%98%9F/id1403690439?mt=8">下载小行星APP</a>
+          <!-- 安卓 -->
+          <a v-if="downAnd" href="http://android.myapp.com/myapp/detail.htm?apkName=com.study.ansteroid&ADTAG=mobile">下载小行星APP</a>
+          <span class="colse" @click="colse"><img src="../../assets/close2.png"></span>
+        </div>
+  </div>
+</template>
+
+<script>
+import Theimgs from '../image/icon_stop.png'
+import NoTheimgs from '../image/continue.png'
+import Carousel from 'vue-m-carousel'
+
+export default {
+  data(){
+    return{
+      course_introduction:"", //简介
+      course_name:"", //课程名称"
+      this_length:"", //音频长度
+      course_cover:"", //1是 0否 点赞 这是测试用的
+      pptlist:[], //ppt图片列表
+      imgs:NoTheimgs,
+      per: 0,
+      endtimd: "",
+      oStria : "",
+      starts: '00:00',
+      pers:"",
+      fenend:[],
+      test: 0,
+      mins:0,
+      begins: 0,
+      fenstart:[],
+      audio:"",
+      playStatus:'controls',
+      current:true,
+      show:true,
+      ppt_img:'',
+      swiper:{},
+      downIos:false,
+      downAnd:false,
+      isFixed:true
+    }
+  },
+  components: {
+        Carousel
+    },
+  mounted(){
+     var per = 0;
+        var tid;
+      setTimeout(() => {
+        this.$previewRefresh()
+      }, 2000);
+
+      // $('.pswp__item').on('click',function(){
+      //   console.log(1)
+      // })
+      //$('.van-toast').on('click',()=>{console.log(1)})
+        
+  },
+   created(){
+     this.course_two()
+     document.title =  this.is_fabulous
+     this.reverseendtimd()
+     this.isUserAgent()
+  },
+  methods: {
+   colse(){
+      this.isFixed = false
+    },
+    isUserAgent(){
+      let u = navigator.userAgent;
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+
+      if ( isAndroid ){
+        this.downAnd = true
+      }
+
+      if ( isiOS ){
+        this.downIos = true
+      }
+
+      if ( !isAndroid && !isiOS ){
+        this.downAnd = true
+      }
+    },
+    videos(){
+      let myvideo = document.getElementById("myvideo");
+
+      if(this.current){
+         myvideo.play()
+         this.current = false
+         console.log("开始咯")
+         document.getElementsByClassName("dian")[0].style.display = "none"
+      }
+      else{
+        myvideo.pause()
+        this.current = true
+        console.log("结束咯")
+      }
+
+    },
+    allsba(){
+      // document.getElementsByClassName("pic")[0].style.display = "block"
+      // var len = document.getElementsByClassName("imgswid").length;
+      // // console.log(len)
+      //  for(var i=0; i<len; i++){
+      //     // document.getElementsByClassName("swiper-slide")[i].style.width = "400px"
+      //     // document.getElementsByClassName("imgswid")[i].style.width = "400px"
+      //     // document.getElementsByClassName("imgswid")[i].style.height = "600px"
+      //     // document.getElementsByClassName("imgswid")[i].style.borderRadius = "0"
+      //     // document.getElementsByClassName("imgswid")[i].style.marginTop = "50%"
+      //  }
+    },
+    closed(){
+      document.getElementsByClassName("pic")[0].style.display = "none"
+    },
+    /**
+     * 指定排序的比较函数
+     */
+    compare(property){
+         return function(obj1,obj2){
+             var value1 = obj1[property];
+             var value2 = obj2[property];
+             return value1 - value2;     // 升序
+         }
+    },
+    course_two(){
+      let url = "/course/course_two"
+      let data = {
+        course_id: localStorage.getItem('ids')
+        // localStorage.getItem('ids')
+      }
+       this.$axios.post(url,data).then((res)=>{
+            this.course_introduction = res.data.data.course_introduction //简介
+            this.course_name = res.data.data.course_name
+            this.course_cover = res.data.data.course_cover
+            this.endtimd = res.data.data.this_length
+            this.pptlist = res.data.data.pptlist.sort(this.compare('ppt_second'))
+            console.log(this.pptlist)
+            this.show = (this.pptlist.length == 0)
+            // alert("show="+this.show)
+            this.mins = res.data.data.this_length
+            this.audio = res.data.data.audio
+            document.title = this.course_name
+            let min = Math.floor(this.endtimd/60) % 60
+            let sec = parseInt(this.endtimd % 60)
+            if(min < 10){min = "0" + min;}
+            if(sec < 10){sec = "0" + sec;}
+            this.fenend.push(min)
+            this.fenend.push(sec)
+            this.fenend = this.fenend.join('.');
+            // console.log(this.fenend)
+
+          
+
+
+            this.$nextTick(()=>{
+              this.swiper = new Swiper('.swiper-container', {
+                spaceBetween: 0,
+                loop: true,
+                centeredSlides: true,
+                autoplay: false,
+              })
+            })
+            // console.log("xixi"+res.data.data.course_introduction)
+        })
+    },
+    changes(){
+      if(this.imgs == Theimgs){
+        this.imgs = NoTheimgs
+        this.stop()
+      }
+      else{
+        this.imgs = Theimgs
+        this.down()
+
+      }
+      let myvideo = document.getElementById("myvideo");
+
+      if(this.current){
+         myvideo.play()
+         this.current = false
+         console.log("开始咯")
+        //  document.getElementsByClassName("dian")[0].style.display = "none"
+      }
+      else{
+        myvideo.pause()
+        this.current = true
+        console.log("结束咯")
+      }
+      // console.log("endtimd"+this.endtimd)
+      this.pers = (100 / parseInt(this.endtimd))
+      // this.test = (parseInt(this.endtimd) / 100)
+      // this.starts.push(Math.floor(this.endtimd/60) % 60)
+      // console.log("starts"+ this.starts)
+    },
+    down(){
+        // this.oStria = setInterval(this.Progress(), 100)
+        this.oStria = setInterval(() => {
+         this.Progress()
+      }, 1000)
+    },
+    stop(){
+        clearInterval(this.oStria)
+    },
+    reverseendtimd(){
+      // this.endtimd = parseInt(this.endtimd.split('.')[0] * 60) + parseInt(this.endtimd.split('.')[1])
+      //  this.per = (100 / parseInt(this.endtimd))
+      //  this.per = this.per + this.per
+      // console.log("yalaso"+this.endtimd)
+
+
+      //  this.starts = parseInt(this.endtimd/60%24)
+      //  this.starts.push(parseInt(this.endtimd/60%24))
+      //  this.starts.push(this.endtimd % 60)
+      //  this.starts.join(".")
+      // parseInt(this.endtimd % 60)
+      //  parseInt(this.endtimd/60%24)
+      // console.log("yo"+(this.endtimd / 1000))
+      // console.log("per"+this.starts.join("."))
+    },
+    Progress() {
+          this.fenstart = []
+          this.per = this.per + this.pers
+
+          this.begins = this.per/100 * this.mins
+          let bmin = Math.floor(this.begins / 60) % 60
+          let bsec = parseInt(this.begins % 60)
+          if(bmin < 10){bmin = "0" + bmin;}
+          if(bsec < 10){bsec = "0" + bsec;}
+          this.fenstart.push(bmin)
+          this.fenstart.push(bsec)
+
+          this.starts  = this.fenstart.join('.');
+          
+          this.test++
+          if (this.per >= 100) {
+              this.Fn();
+          }
+          else{
+              var lefts = document.getElementById("lefts");
+              // var oPro = document.getElementById("pro")
+              // oPro.innerText = this.per + "px";
+              // oPro.style.width = 3 * this.per + "px";
+              lefts.style.left = this.per+"%"
+
+              // console.log("xiha")
+          }
+
+          if ( this.pptlist.length ){
+            this.pptlist.forEach((val,key)=>{
+              if ( parseInt(this.begins) == val.ppt_second){
+                console.log(key)
+                this.swiper.slideTo(key)
+                // this.ppt_img = val.ppt_img
+              }
+            })
+          }
+          
+      },
+    Fn() {
+        clearInterval(this.oStria)
+        // alert("音乐播放完成")
+        // console.log(this.test)
+    }
+  },
+  //  mounted(){
+
+        
+
+  //       // document.getElementById('btn').addEventListener('click',function(){
+  //       //     alert(1)
+  //       // })
+
+
+       
+  // }
+}
+</script>
+<style lang="scss" scoped>
+   #pro {
+          width: 0px;
+          height: 20px;
+          background-color: #cea;
+          text-align: center;
+  }
+  p,ul,li{
+    margin:0;
+    padding:0;
+  }
+  li{
+    list-style: none;
+  }
+  .content{
+    width: 100%;
+    height: 100%;
+    background:#fff;
+      // .title{
+      //   background: #fff;
+      //   margin-bottom:4px;
+      //   overflow: hidden;
+      //   padding:0 31px 0 28px;
+      //   font-size: 36px;
+      //   color: #333333;
+      //   h3{
+      //     float: left;
+      //     margin:68px 130px 24px 0;
+      //   }
+      //   img{
+      //     width: 24px;
+      //     margin-top: 76px;
+      //   }
+      //   p{
+      //     float: right;
+      //   }
+      // }
+      .lesson{
+        background: #fff;
+        .box1{
+          // width: 100%;
+          // padding: 0;
+           width: 500px;
+           padding:91px 125px 78px 125px;
+           margin:0 auto;
+
+          img{
+            width: 100%;
+            border-radius: 20px;
+
+          }
+        }
+        .box2{
+          padding:0 38px 36px 25px;
+          position: relative;
+          .imgbox{
+            position: relative;
+          }
+          img{
+            width: 690px;
+          }
+          .box2_1{
+            margin:65px 0 30px 0;
+            img{
+              width: 22px;
+              display: inline-block;
+            }
+            .changeImgs{
+              display: inline-block;
+            }
+            .stops{
+              width: 114px;
+              margin:-10px 120px -46px 120px;
+            }
+          }
+        }
+        .times{
+          position: absolute;
+          color:#999;
+          font-size:20px;
+          top:40px;
+          margin-left:-68px;
+          left:100px;
+          .nums{
+            margin-right: 560px;
+          }
+        }
+        .times2{
+          img{
+             width: 9px;
+          }
+          position: absolute;
+          top:4px;
+          left:0%;
+        }
+      }
+      .favourable{
+        margin-top: 10px;
+        text-align: left;
+        background: #fff;
+        padding:33px 46px 61px 28px;
+        color: #999;
+        font-size: 26px;
+        line-height: 40px;
+        .fir{
+          font-size: 28px;
+          margin-bottom: 29px;
+          color: #666;
+        }
+      }
+       .pic{
+        display: none ;
+        position: fixed;;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        top:0;
+        .close{
+          color:#fff;
+          float: right;
+          margin:20px 20px 0 0;
+        }
+      }
+  }
+</style>
+<!-- Demo styles -->
+  <style lang="scss" scoped>
+    html, body {
+      position: relative;
+      height: 100%;
+    }
+    body {
+      background: #eee;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color:#000;
+      margin: 0;
+      padding: 0;
+    }
+    .swiper-container {
+      width: 100%;
+    }
+    .swiper-slide {
+      text-align: left;
+      font-size: 18px;
+      background: #fff;
+
+      /* Center slide text vertically */
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    }
+    .swiper-pagination-bullet {
+      width: 36px;
+      height: 5px;
+      text-align: center;
+      line-height: 20px;
+      font-size: 12px;
+      color: #000;
+      opacity: 1;
+      background: rgb(240, 240, 240);
+    }
+    .swiper-pagination-bullet-active {
+      color:#fff;
+      background: rgb(0, 0, 0)
+    }
+    .swiper-pagination-bullet{
+      border-radius: 0 !important;
+    }
+    .teset img{
+      width: 100%;
+      height: 100%;
+    }
+
+
+    .fixed{
+      color:rgb(102,102,102);
+      position: relative;
+      background: #f7f7f7;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      padding:20px 10px;
+      width: 100%;
+      box-sizing: border-box;
+      font-weight: bold;
+      >img{
+        width:52px;
+        height:52px;
+        vertical-align:middle;
+        margin-right: 20px;
+      }
+      a{
+        display: inline-block;
+        width: 225px;
+        line-height: 50px;
+        padding-top: 5px;
+        background: rgb(255,221,0);
+        text-align: center;
+        color: rgb(102,102,102);
+        font-size: 28px;
+        margin-left: 20px;
+      }
+      .colse{
+        width: 30px;
+        height: 30px;
+        display: inline-block;
+        margin-left: 10px;
+        margin-top: -30px;
+        vertical-align: middle;
+        img{
+          width: 100%;
+          height: 100%;
+
+        }
+      }
+    }
+  </style>
+
+

@@ -1,0 +1,578 @@
+<template>
+  <div class="content" style="padding-bottom:80px">
+    <!-- <div class="title">
+      <h3>课程题目课程题目课程题目课程…</h3>
+      <p><img src="../image/wrong.png" alt=""></p>
+    </div> -->
+    <!-- v-for="item in imgList" :key="item.id"
+     v-if="item.cm_type == 1"
+     v-else-if="item.cm_type == 2"
+     v-else-if="item.cm_type == 3" -->
+    <!-- item.member_username
+     item.member_avater -->
+    <div class="wrap" v-for="(item,index) in imgList" :key="index">
+      <div class="lesson" v-if="item.cm_type == 1">
+        <div class="les1" :style="'background:url(' +item.member_avater + ') no-repeat;background-position: center;background-size: cover;display:inline-block;width:60px;height:60px;border-radius: 50%;'">
+          <!-- <img :src="item.member_avater " alt=""> -->
+        </div>
+        <div class="les2">
+          <p class="theles"><span class="one">{{item.member_username}}</span><span class="two">讲师</span></p>
+          <p class="thr">
+            {{item.message}}
+          </p>
+        </div>
+      </div>
+      <div class="favourable" v-if="item.cm_type == 2">
+        <div class="fav1" :style="'background:url(' +item.member_avater + ') no-repeat;background-position: center;background-size: cover;display:inline-block;width:60px;height:60px;border-radius: 100%;'">
+          <!-- <img :src="item.member_avater " alt=""> -->
+        </div>
+        <div class="fav2">
+          <p class="one"><span class="fir">{{item.member_username}}</span><span class="sec">讲师</span></p>
+          <p class="two" @click="videos(index)">
+            <img src="../image/5.png" alt="">
+            <!-- <audio :src="item.message" preload="none"></audio> -->
+
+            <audio :src="item.message" :controls="playStatus" class="myvideo">
+              您的浏览器不支持 video 标签。
+            </audio>
+            <!-- <video id="myvideo" height="414" width="720">
+              <source :src="item.message" type="video/mp4">
+             </video> -->
+          </p>
+        </div>
+        <div class="dian"><span></span></div>
+        <div class="fen">{{item.audio_length | formatDate}}</div>
+      </div>
+      <div class="paymen" v-if="item.cm_type == 3">
+        <div class="pay1" :style="'background:url(' +item.member_avater + ') no-repeat;background-position: center;background-size: cover;display:inline-block;width:60px;height:60px;border-radius: 100%;'">
+          <!-- <img :src="item.member_avater " alt=""> -->
+        </div>
+        <div class="pay2">
+          <p class="one"><span class="fir">{{item.member_username}}</span><span class="sec">讲师</span></p>
+          <p class="two">
+            <img :src="item.message" alt="" preview="0">
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="present" @click="present2()">
+      <span class="fir"><img src="../image/icon_zan_sel.png" alt=""></span>
+      <span><img src="../image/icon_gift2_sel.png" alt=""></span>
+    </div> -->
+    <!-- <div class="presented" id="presented">
+      <ul>
+        <li class="pres" @click="sends1()"><img src="../image/img_xq1.png"><p>1</p></li>
+        <li class="pres" @click="sends2()"><img src="../image/img_xq2.png"><p>5</p></li>
+        <li @click="sends3()" class="pres las"><img src="../image/img_xq3.png"><p>10</p></li>
+      </ul>
+      <button @click="send_gift()">赠送</button>
+    </div> -->
+
+    <div class="fixed" v-if="isFixed">
+      <img src="../../assets/logo.png">
+      更全面的功能，更流畅的体验
+      <!-- 苹果 -->
+      <a v-if="downIos"  href="https://itunes.apple.com/cn/app/%E5%B0%8F%E8%A1%8C%E6%98%9F/id1403690439?mt=8">下载小行星APP</a>
+      <!-- 安卓 -->
+      <a v-if="downAnd" href="http://android.myapp.com/myapp/detail.htm?apkName=com.study.ansteroid&ADTAG=mobile">下载小行星APP</a>
+      <span class="colse" @click="colse"><img src="../../assets/close2.png"></span>
+    </div>
+  </div>
+</template>
+<script>
+import axios from 'axios'
+export default {
+  data() {
+    return {
+      ids: "",
+      imgList: "",
+      playStatus: 'controls',
+      muteStatus: '',
+      isMute: true,
+      isPlay: false,
+      current: true,
+      sended: 1,
+      downIos:false,
+      downAnd:false,
+      isFixed:true
+    }
+  },
+  created() {
+    document.body.style.backgroundColor = "rgb(244, 244, 244)"
+    this.course()
+
+  },
+  mounted(){
+    setTimeout(() => {
+    this.$previewRefresh()
+    }, 2000);
+    this.isUserAgent()
+    // audiojs.events.ready(function() {
+    //   var as = audiojs.createAll();
+    // });
+  },
+  filters: {
+      formatDate(times) {
+          var minute,second,result
+          if (times > 0) {
+            minute = Math.floor(times / 60);
+            if (minute < 10) {
+              minute = "0"+minute;
+            }
+
+            second = Math.floor((times - 60 * minute));
+            if (second < 10) {
+              second = "0"+second;
+            }
+            result = minute+':'+second;
+          }
+          return result;
+          // return this.timeToFormat(time);
+      }
+  },
+  methods: {
+     colse(){
+        this.isFixed = false
+      },
+      isUserAgent(){
+        let u = navigator.userAgent;
+        let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+        let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+
+        if ( isAndroid ){
+          this.downAnd = true
+        }
+
+        if ( isiOS ){
+          this.downIos = true
+        }
+
+        if ( !isAndroid && !isiOS ){
+          this.downAnd = true
+        }
+      },
+     timeToFormat(times){
+      var minute,second
+      console.log(time)
+      console.log(11)
+      if (times > 0) {
+        minute = Math.floor((times - 3600 * hour) / 60);
+        if (minute < 10) {
+          minute = "0"+minute;
+        }
+
+        second = Math.floor((times - 3600 * hour - 60 * minute) % 60);
+        if (second < 10) {
+          second = "0"+second;
+        }
+        result = minute+':'+second;
+      }
+      return result;
+    },
+    sends1() {
+      this.sended = 1
+      console.log(this.sended)
+    },
+    sends2() {
+      this.sended = 2
+      console.log(this.sended)
+    },
+    sends3() {
+      this.sended = 3
+      console.log(this.sended)
+    },
+    present2() {
+      document.getElementById("presented").style.display = "block"
+      document.getElementsByClassName("present")[0].style.display = "none"
+    },
+    videos(indexs) {
+      console.log(indexs)
+      let myvideo = document.getElementsByClassName("myvideo")[indexs];
+
+      if (this.current) {
+        myvideo.play()
+        this.current = false
+        console.log("开始咯")
+        document.getElementsByClassName("dian")[indexs].style.display = "none"
+      } else {
+        myvideo.pause()
+        this.current = true
+        console.log("结束咯")
+      }
+
+    },
+    course() {
+      this.ids = localStorage.getItem('ids')
+      let url = "course/courserecording_page?course_id=" + this.ids + "&page=1&usertype=1"
+
+      // console.log("xiha"+this.ids)
+      // let data = {
+      //   page: 2,
+      //   usertype : 1,
+      //   course_id:836
+      // }
+      //  console.log(data.course_id)
+      //  console.log(data.usertype)
+      //  console.log(data.course_id)
+      //  axios.get("http://asteroids.api.chengmikeji.com/api/course/courserecording_page?course_id="+this.ids+"&page=1&usertype=1",{ headers: { 'Authorization': window.localStorage.getItem('token')}})
+      //   .then( (response) => {
+      //     this.imgList = response.data.data.list
+      //     console.log("yalaosuo"+response.data.code);
+      //   })
+      //   .catch( (error) => {
+      //     // console.log("error"+error);
+      //      alert("从正确的分享链接进来")
+      //      this.$router.push({
+      //            path: '/carbon/login'
+      //        })
+      //   });
+      this.$axios.get(url).then((res) => {
+        console.log("xixihaha" + res.data.code)
+        //  document.body.style.background = rgb(244, 244, 244)
+        //  if(res.data.code == 1){
+        this.imgList = res.data.data.list
+        console.log(res.data.data.list)
+        console.log(res.data.code)
+        let data = { course_id: localStorage.getItem('ids') }
+        let url = "/course/detailcourse"
+        // console.log("xixi" + data.course_id)
+        this.$axios.post(url, data).then((res) => {
+          document.title = res.data.data.coursename
+        })
+        // console.log(res.data.msg)
+
+      })
+      //  }
+      //    else{
+      //      //先暂时跳到登录页面，问清楚之后再改地址
+      //       alert("从正确的分享链接进来")
+      //      this.$router.push({
+      //            path: '/carbon/login'
+      //        })
+      //    }
+      //  })
+    },
+    send_gift() {
+      let url = "/gift/send_gift"
+      let data = {
+        course_id: localStorage.getItem('ids'),
+        gift_id: this.sended
+      }
+      this.$axios.post(url, data).then((res) => {
+        console.log("xiha" + res.data.msg)
+        alert(res.data.msg)
+        document.getElementById("presented").style.display = "none"
+      })
+    }
+  }
+}
+
+</script>
+<style lang="scss" scoped>
+body {
+  background: rgb(244, 244, 244)
+}
+
+li {
+  list-style: none;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.content {
+  width: 750px; // .title{
+  //   background: #fff;
+  //   margin-bottom:20px;
+  //   overflow: hidden;
+  //   padding:0 31px 0 28px;
+  //   font-size: 30px;
+  //   color: #333333;
+  //   h3{
+  //     float: left;
+  //     margin:68px 130px 24px 0;
+  //   }
+  //   img{
+  //     width: 24px;
+  //     margin-top: 76px;
+  //   }
+  // }
+  .lesson {
+    overflow: hidden;
+    padding: 31px 20px 0 19px;
+    .les1 {
+      float: left;
+      img {
+        width: 150px;
+        border-radius: 50%;
+      }
+    }
+    .les2 {
+      float: left;
+      margin-left: 12px;
+      text-align: left;
+      .theles {
+        overflow: hidden;
+      }
+      .one {
+        font-size: 28px;
+        color: #999999;
+        margin-left: -100px;
+        display: inline-block;
+        float: left;
+        margin: 0 10px 15px 10px;
+      }
+      .two {
+        display: inline-block;
+        width: 62px;
+        height: 32px;
+        background: rgb(255, 221, 0);
+        border-radius: 6px;
+        color: #fff;
+        float: left;
+        text-align:center;
+        line-height: 37px;
+        height:32px;
+        font-size:16px;
+      }
+      .thr {
+        background: #fff;
+        background-size: 100%;
+        font-size: 28px;
+        color: #333333;
+        text-align: left;
+        line-height: 40px;
+        display: inline-block;
+        margin-left: 10px;
+        padding: 20px;
+      }
+    }
+  }
+  .favourable {
+    position: relative;
+    overflow: hidden;
+    padding: 31px 20px 0 19px;
+    .fav1 {
+      float: left;
+
+      img {
+        width: 150px;
+        border-radius: 50%;
+      }
+    }
+    .fav2 {
+      float: left;
+      margin-left: 20px;
+      .one {
+        overflow: hidden;
+        .fir {
+          font-size: 28px;
+          color: #999999;
+          float: left;
+          display: inline-block;
+          margin: 0 10px 15px 10px;
+        }
+        .sec {
+          display: inline-block;
+          width: 62px;
+          height: 32px;
+          background: rgb(255, 221, 0);
+          border-radius: 6px;
+          color: #fff;
+          float: left;
+          line-height: 37px;
+          height:32px;
+          font-size:16px;
+          text-align: center;
+        }
+      }
+      .two {
+        background: url(../image/bg2.png) no-repeat;
+        background-size: 100% 100%;
+        width: 400px;
+        img {
+          width: 39px;
+          height: 48px;
+          margin: 15px 419px 15px 30px;
+        }
+      }
+    }
+    .dian {
+      span {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #e65c55;
+        ;
+        position: absolute;
+        left: 80%;
+        top: 44%;
+      }
+    }
+    .fen {
+      color: #999999;
+      position: absolute;
+      left: 80%;
+      top: 60%;
+    }
+  }
+  .paymen {
+    overflow: hidden;
+    padding: 31px 20px 0 19px;
+    .pay1 {
+      float: left;
+      img {
+        width: 150px;
+        border-radius: 50%;
+      }
+    }
+    .pay2 {
+      float: left;
+      margin-left: 20px;
+      .one {
+        overflow: hidden;
+        .fir {
+          font-size: 28px;
+          color: #999999;
+          float: left;
+          display: inline-block;
+          margin: 0 10px 15px 10px;
+        }
+        .sec {
+          display: inline-block;
+          width: 62px;
+          background: rgb(255, 221, 0);
+          border-radius: 6px;
+          color: #fff;
+          float: left;
+          line-height: 37px;
+          height:32px;
+          font-size:16px;
+          text-align: center;
+        }
+      }
+      .two {
+        img {
+          width: 379px;
+        }
+      }
+    }
+  }
+  .present {
+    background: #fff;
+    float: right;
+    border-radius: 66px 0 0 66px;
+    padding: 27px 42px 20px 36px;
+    margin: 104px 0 50px 0;
+    span {
+      width: 46px;
+      height: 40px;
+      display: inline-block;
+      background-color: rgb(255, 124, 204);
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .fir {
+      margin-right: 33px;
+    }
+  }
+  .presented {
+    display: table-cell;
+    text-align: center;
+    background: #fff;
+    position: fixed;
+    bottom: 0;
+    display: none;
+    ul {
+      overflow: hidden;
+      padding: 0;
+      display: inline-block;
+      margin-top: 37px;
+      .las {
+        margin-right: 0;
+      }
+      .pres:hover {
+        border: 1px solid red;
+      }
+    }
+    ul li {
+      float: left;
+      width: 200px;
+      height: 160px;
+      border-radius: 16px;
+      border: solid 2px #ffdd00;
+      color: #999;
+      margin-right: 20px;
+      img {
+        width: 86px;
+        height: 69px;
+        margin-top: 29px;
+      }
+    }
+    button {
+      width: 690px;
+      height: 100px;
+      font-size: 36px;
+      line-height: 13px;
+      color: #323232;
+      background-color: #ffdd00;
+      box-shadow: 0px 4px 18px 0px rgba(255, 179, 0, 0.4);
+      border-radius: 16px;
+      border: 0;
+      margin: 37px 30px 18px 30px;
+    }
+  }
+}
+
+.myvideo {
+  display: none;
+}
+
+.fixed{
+  color:rgb(102,102,102);
+  position: relative;
+  background: #f7f7f7;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding:20px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  font-weight: bold;
+  >img{
+    width:52px;
+    height:52px;
+    vertical-align:middle;
+    margin-right: 20px;
+  }
+  a{
+    display: inline-block;
+    width: 225px;
+    line-height: 50px;
+    padding-top: 5px;
+    background: rgb(255,221,0);
+    text-align: center;
+    color: rgb(102,102,102);
+    font-size: 28px;
+    margin-left: 20px;
+  }
+  .colse{
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    margin-left: 10px;
+    margin-top: -30px;
+    vertical-align: middle;
+    img{
+      width: 100%;
+      height: 100%;
+
+    }
+  }
+}
+
+</style>

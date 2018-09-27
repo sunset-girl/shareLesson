@@ -1,0 +1,289 @@
+<template>
+  <div class="content">
+    <div class="favourable">
+      <p class="f1">+86 <img src="../image/triangle.png" alt=""><input type="text" placeholder="请输入手机号" v-model="mobile"></p>
+      <p class="f2"><input type="text" placeholder="请输入验证码" v-model="code" style="width: 100px;" maxlength="6"> <button @click="sendregistercode()" id="btn1">发送</button></p>
+      <p class="f2"><input type="password" placeholder="请设置6-16位密码" v-model="password"></p>
+      <p class="f3"><input type="password" placeholder="请确认密码" v-model="passwordConfig"></p>
+      <p class="logis" @click="logins()">登录</p>
+    </div>
+    <div class="paymen">
+
+    </div>
+     <button class="nexts" @click="goregister()">确定</button>
+     <div class="policy">注册代表你已同意 <span>注册协议</span>和<span>隐私政策</span></div>
+  </div>
+</template>
+<script>
+import md5 from 'js-md5'
+export default {
+  data(){
+    return{
+      secret:"",
+      time:"",
+      password:"",
+      passwordConfig:"",
+      mobile:"",
+      code:"",
+      id: "",
+      state:true,
+    }
+  },
+  created(){
+    document.title = "注册"
+    this.GetRequest()
+  },
+  mounted(){
+     window.onload = function(){
+       if(this.mobile != ""){
+
+
+         }
+     }
+  },
+  methods: {
+    // passwords(){
+    //   if(this.mobile !== ""){
+    //     if( this.code !== ""){
+    //       this.$router.push({
+    //         path:'/carbon/password',
+    //         query: {
+    //               mobile: this.mobile,
+    //               code: this.code
+    //         }
+    //       })
+    //     }
+    //     else{
+    //       alert("请输入验证码")
+    //     }
+    //   }
+    //   else {
+    //     alert("请输入手机号")
+    //   }
+
+    // },
+    logins(){
+      this.$router.push({
+         path: '/carbon/login'
+      })
+    },
+     goregister(){
+      if ( !this.state ){
+        return false
+      }
+      if(this.password != ""){
+        if ( this.password != this.passwordConfig ){
+          alert('两次输入的密码不一致')
+          return false
+        }
+        let url = "/register/goregister"
+        let data = {
+          mobile: this.mobile,
+          code: this.code,
+          password: this.password
+        }
+        this.state = false
+        this.$axios.post(url,data).then((res)=>{
+          console.log(res.data.data.auth)
+          // localStorage.setItem("token",res.data.data.auth)
+          sendregistercode
+          this.state = true
+          // console.log(localStorage.getItem("token"))
+          this.$router.push({
+            path: '/carbon/login'
+          })
+        })
+      }
+      else{
+        alert("请设置密码")
+      }
+    },
+    daojis(){
+
+            var btn = document.getElementById("btn1");
+            nei()
+                function nei(){
+                  let time = null;
+                   clearInterval(time);
+                    btn.disabled = true;
+                    // var that = this;
+                    var count = 3;
+                    time = setInterval(message, 1000);
+                    function message() {
+                        count--;
+                        if (count >= 0) {
+                            btn.innerHTML = "剩下" + count + "秒";
+                        }
+                        else {
+                            btn.disabled = false;
+                            btn.innerHTML = "重新发送验证码";
+                            clearInterval(time);
+                        }
+                     }
+                    }
+
+    },
+      sendregistercode(){
+        let url = "/sms/sendregistercode"
+        let times = Date.parse(new Date());
+        this.secret = "smallstar"+times+this.mobile+"2018"
+        console.log(times);
+        console.log(this.mobile);
+        console.log(this.secret);
+        console.log(md5(this.secret));
+        let data = {
+          mobile: this.mobile,
+          secret: md5(this.secret),
+          time: times
+        }
+        this.$axios.post(url,data).then((res)=>{
+          console.log(res.data.data)
+          this.daojis()
+        })
+      },
+      GetRequest() {
+        // var url = location.search; //获取url中"?"符后的字串
+        // var theRequest = new Object();
+        // if (url.indexOf("?") != -1) {
+        //     var str = url.substr(1);
+        //     strs = str.split("&");
+        //     for(var i = 0; i < strs.length; i ++) {
+        //       theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+        //     }
+        // }
+        // console.log(theRequest)
+        // return theRequest;
+        //  var name, value;
+        //  var arrs = [];
+        //  var str = location.href; //获取到整个地址
+        //  console.log("shi bu shi" +str);
+        //  var num = str.indexOf("?")
+        //  str = str.substr(num + 1); //取得num+1后所有参数，这里的num+1是下标 str.substr(start [, length ]
+        //  var arr = str.split("&"); //以&分割各个参数放到数组里
+        //  for (var i = 0; i < arr.length; i++) {
+        //  num = arr[i].indexOf("=");
+        //  if (num > 0) {
+        //  name = arr[i].substring(0, num);
+        //  value = arr[i].substr(num + 1);
+        //  this[name] = value;
+        //  arrs.push(this[name])
+        //  //这里的ids先假设为468
+        //  localStorage.setItem('ids',arrs[0])
+        //  console.log("ids shi "+ localStorage.getItem('ids'))
+        //  }
+        // }
+        }
+  }
+}
+</script>
+<style lang="scss" scoped>
+  p{
+    padding:0;
+    margin:0;
+  }
+  .content{
+    width: 100%;
+    height: 100%;
+    background:#fff;
+    outline: none !important;
+    .favourable{
+        background: #fff;
+        margin-bottom:10px;
+        line-height: 80px;
+        overflow: hidden;
+        padding:325px 90px 40px 90px;
+        font-size: 28px;
+        color: #999;
+        .f1,.f2,.f3{
+          border-bottom:1px solid rgb(245, 245, 245);
+          text-align: left;
+          font-size: 32px;
+          position: relative;
+          img{
+            width: 16px;
+            height: 8px;
+            position: absolute;
+            top:38px;
+            left:64px;
+          }
+          input{
+            margin-left:50px;
+            width: 322px;
+            line-height: 50px;
+            border:0;
+            font-size: 32px;
+            padding-left:10px;
+            outline:none;
+          }
+           input::-webkit-input-placeholder {
+                  /* placeholder颜色  */
+                  color: rgb(217, 217, 217);
+                  /* placeholder字体大小  */
+                  font-size: 32px;
+                  /* placeholder位置  */
+              }
+        }
+        .f3{
+          margin-bottom: 15px;
+        }
+        .f2{
+          margin: 10% 0;
+          input{
+            margin:0;
+            outline:none;
+          }
+          button{
+            	// width: 94px;
+	            //height: 50px;
+	            background-color: #ffdd00;
+	            border-radius: 8px;
+              border:0;
+              font-size: 30px;
+              color:#000;
+              float: right;
+              // margin-top:2%;
+              line-height: 40px;
+              padding:10px 30px;
+
+          }
+        }
+        .f3{
+          input{
+            margin:0;
+            outline:none;
+          }
+        }
+      }
+   .nexts{
+          width: 570px;
+          height: 100px;
+          font-size: 36px;
+          line-height: 13px;
+          color: #323232;
+          background-color: #ffdd00;
+          border-radius: 16px;
+          border:0;
+          margin:37px 30px 18px 30px;
+   }
+   .logis{
+     float: right;
+     color: #ffb300;
+     margin-top: -3%;
+     font-size: 32px;
+   }
+
+  }
+  .policy{
+    width: 100%;
+    text-align:center;
+    color: #999999;
+    font-size: 22px;
+    margin-top:100px;
+    span{
+      color:#ffb300;
+    }
+  }
+
+</style>
+
+
